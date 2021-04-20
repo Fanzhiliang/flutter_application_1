@@ -2,12 +2,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/global.dart';
-import 'package:flutter_application_1/pages/listPage/reorder_able_list_page.dart';
 import 'package:flutter_application_1/router/routes.dart';
 import 'package:flutter_application_1/utils/utils.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
-
 import 'components/hide_scroll_shadow/hide_scroll_shadow.dart';
+import 'pages/tabbar/bottom_tabbar.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -54,7 +53,7 @@ class _AppState extends State<App> {
         // 消除滚动的月牙阴影
         home: HideScrollShadow(
           // 打开的初始页面
-          child: ReorderAbleListPage(),
+          child: BottomTabBar(),
         ),
         localizationsDelegates: [
           // 解决 Cupertino 弹框报错的问题

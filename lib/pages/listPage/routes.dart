@@ -27,7 +27,14 @@ void listPageconfigureRoutes(FluroRouter router) {
     routeMap.likeListPage,
     handler: Handler(
       handlerFunc: (BuildContext context, Map<String, List<String>> params) {
-        return LikeListPage();
+        String list;
+        if (params.containsKey('list') && params['list'].first != null) {
+          list = params['list'].first;
+        }
+
+        return LikeListPage(
+          list: list,
+        );
       },
     ),
   );

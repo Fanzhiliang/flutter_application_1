@@ -37,6 +37,8 @@ dependencies:
   pull_to_refresh: ^1.6.5
   # 路由管理
   fluro: ^2.0.3
+  # toast 弹框
+  fluttertoast: ^4.0.0
 
 dev_dependencies:
   flutter_test:

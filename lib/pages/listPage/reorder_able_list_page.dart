@@ -12,10 +12,12 @@ class ReorderAbleListPage extends StatefulWidget {
 }
 
 class _ReorderAbleListPageState extends State<ReorderAbleListPage> {
+  // 单词数组
   List<WordPair> _words = [];
-
+  // 选中数组
   List<String> _likeList = [];
 
+  // 添加随机单词
   _handleRandomWord() async {
     await Future.delayed(Duration(milliseconds: 1500));
     setState(() {
@@ -23,6 +25,7 @@ class _ReorderAbleListPageState extends State<ReorderAbleListPage> {
     });
   }
 
+  // 切换选中
   _handleToggleLike(String val) {
     setState(() {
       if (_likeList.contains(val)) {
@@ -33,6 +36,7 @@ class _ReorderAbleListPageState extends State<ReorderAbleListPage> {
     });
   }
 
+  // 生成行
   Widget _rowBuilder({int index}) {
     final String val = _words[index].asPascalCase;
     final bool isContains = _likeList.contains(val);
@@ -66,8 +70,16 @@ class _ReorderAbleListPageState extends State<ReorderAbleListPage> {
     );
   }
 
+  // 设置选中数组
+  _setLikeList(dynamic val) {
+    setState(() {
+      _likeList = val as List<String>;
+    });
+  }
+
   ScrollController _scrollController = ScrollController();
 
+  // 滚动事件
   _handleScroll() {
     if (_scrollController.position.pixels >=
         _scrollController.position.maxScrollExtent) {
@@ -109,10 +121,14 @@ class _ReorderAbleListPageState extends State<ReorderAbleListPage> {
         actions: [
           IconButton(
             onPressed: () {
-              Global.routerUtils.navigateTo(
+              Global.routerUtils
+                  .navigateTo(
                 context,
-                Global.routeMap.likeListPage,
-              );
+                '${Global.routeMap.likeListPage}?list=${_likeList.join(",")}',
+              )
+                  .then((value) {
+                _setLikeList(value);
+              });
             },
             icon: Icon(Icons.local_grocery_store_outlined),
           )
