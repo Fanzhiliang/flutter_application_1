@@ -86,12 +86,12 @@ class RouterUtils {
     );
   }
 
-  void back(BuildContext context, [int times = 1]) {
+  void back<T>(BuildContext context, [int times = 1, T? result]) {
     NavigatorState navigatorState = Navigator.of(context);
     if (navigatorState.canPop()) {
       unfocus();
       for (int i = 0; i < times; i++) {
-        navigatorState.pop(context);
+        navigatorState.pop(result);
       }
     }
   }
