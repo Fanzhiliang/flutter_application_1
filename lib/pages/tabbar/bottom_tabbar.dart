@@ -27,6 +27,13 @@ class BottomTabBarItem {
 }
 
 class BottomTabBar extends StatefulWidget {
+  final int current;
+
+  BottomTabBar({
+    Key? key,
+    this.current = 0,
+  });
+
   @override
   _BottomTabBarState createState() => _BottomTabBarState();
 }
@@ -92,6 +99,9 @@ class _BottomTabBarState extends State<BottomTabBar> {
   @override
   void initState() {
     super.initState();
+
+    _currentIndex = widget.current;
+
     _pageController = PageController(
       initialPage: _currentIndex,
     );

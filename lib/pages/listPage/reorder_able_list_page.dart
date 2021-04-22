@@ -118,6 +118,7 @@ class _ReorderAbleListPageState extends State<ReorderAbleListPage> {
     return Scaffold(
       appBar: AppBar(
         title: Text('可拖拽列表'),
+        centerTitle: true,
         actions: [
           IconButton(
             onPressed: () {

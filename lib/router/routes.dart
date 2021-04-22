@@ -1,10 +1,11 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
 // 页面
+import '../pages/tabbar/bottom_tabbar.dart';
 import '../pages/listPage/routes.dart';
 
 class RouteMap with ListPageRouteMap {
-  final String reorderAbleListPage = 'reorder_able_list_page';
+  final String bottomTabBar = 'bottom_tabbar';
 }
 
 class Routes {
@@ -12,6 +13,23 @@ class Routes {
     RouteMap routeMap = RouteMap();
 
     ListPageRouteMap.define(router);
+
+    router.define(
+      routeMap.bottomTabBar,
+      handler: Handler(
+        handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
+          int current = 0;
+          if (params.containsKey('current') &&
+              params['current']?.first != null) {
+            current = int.parse(params['current']!.first);
+          }
+
+          return BottomTabBar(
+            current: current,
+          );
+        },
+      ),
+    );
 
     return routeMap;
   }
