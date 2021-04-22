@@ -8,7 +8,7 @@ class LoadMore extends StatefulWidget {
   final double paddingBottom;
 
   LoadMore({
-    Key key,
+    Key? key,
     this.status = LoadMoreStatus.Loading,
     this.paddingTop = 15,
     this.paddingBottom = 15,

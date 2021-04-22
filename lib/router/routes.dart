@@ -19,7 +19,7 @@ class Routes {
 
 // 路由跳转工具
 class RouterUtils {
-  FluroRouter router;
+  late FluroRouter router;
 
   Duration routerDuration = Duration(milliseconds: 250);
 
@@ -44,8 +44,8 @@ class RouterUtils {
     bool replace = false,
     bool clearStack = false,
     TransitionType transition = TransitionType.inFromRight,
-    Duration transitionDuration,
-    Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)
+    Duration? transitionDuration,
+    Widget Function(BuildContext, Animation<double>, Animation<double>, Widget)?
         transitionBuilder,
   }) async {
     unfocus();

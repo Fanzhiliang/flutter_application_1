@@ -5,7 +5,7 @@ import 'package:flutter_application_1/components/load_more/load_more.dart';
 import 'package:flutter_application_1/global.dart';
 
 class ReorderAbleListPage extends StatefulWidget {
-  ReorderAbleListPage({Key key}) : super(key: key);
+  ReorderAbleListPage({Key? key}) : super(key: key);
 
   @override
   _ReorderAbleListPageState createState() => _ReorderAbleListPageState();
@@ -37,7 +37,7 @@ class _ReorderAbleListPageState extends State<ReorderAbleListPage> {
   }
 
   // 生成行
-  Widget _rowBuilder({int index}) {
+  Widget _rowBuilder({required int index}) {
     final String val = _words[index].asPascalCase;
     final bool isContains = _likeList.contains(val);
     return Container(

@@ -17,7 +17,7 @@ void listPageconfigureRoutes(FluroRouter router) {
   router.define(
     routeMap.reorderAbleListPage,
     handler: Handler(
-      handlerFunc: (BuildContext context, Map<String, List<String>> params) {
+      handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
         return ReorderAbleListPage();
       },
     ),
@@ -26,10 +26,10 @@ void listPageconfigureRoutes(FluroRouter router) {
   router.define(
     routeMap.likeListPage,
     handler: Handler(
-      handlerFunc: (BuildContext context, Map<String, List<String>> params) {
-        String list;
-        if (params.containsKey('list') && params['list'].first != null) {
-          list = params['list'].first;
+      handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
+        String list = '';
+        if (params.containsKey('list') && params['list']?.first != null) {
+          list = params['list']!.first;
         }
 
         return LikeListPage(

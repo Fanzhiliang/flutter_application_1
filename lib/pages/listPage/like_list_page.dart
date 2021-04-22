@@ -5,7 +5,7 @@ import 'package:flutter_application_1/global.dart';
 class LikeListPage extends StatefulWidget {
   final String list;
   LikeListPage({
-    Key key,
+    Key? key,
     this.list = '',
   }) : super(key: key);
 
@@ -22,7 +22,7 @@ class _LikeListPageState extends State<LikeListPage> {
     });
   }
 
-  Widget _rowBuilder({int index}) {
+  Widget _rowBuilder({required int index}) {
     final String val = _likeList[index];
     return Container(
       key: ValueKey('row_$index'),

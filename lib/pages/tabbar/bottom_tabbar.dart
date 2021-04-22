@@ -13,7 +13,7 @@ class BottomTabBar extends StatefulWidget {
 }
 
 class _BottomTabBarState extends State<BottomTabBar> {
-  DateTime _lastPopTime;
+  DateTime _lastPopTime = DateTime.now();
   final int _popMaxTime = 2;
 
   List<Widget> _tabbarList = [
@@ -48,7 +48,7 @@ class _BottomTabBarState extends State<BottomTabBar> {
 
   int _currentIndex = 0;
 
-  PageController _pageController;
+  PageController? _pageController;
 
   @override
   void initState() {
@@ -66,9 +66,8 @@ class _BottomTabBarState extends State<BottomTabBar> {
         child: WillPopScope(
           onWillPop: () async {
             // 2秒内连续点击两次就退出程序
-            if (_lastPopTime == null ||
-                DateTime.now().difference(_lastPopTime) >
-                    Duration(seconds: _popMaxTime)) {
+            if (DateTime.now().difference(_lastPopTime) >
+                Duration(seconds: _popMaxTime)) {
               // 记录新的时间
               _lastPopTime = DateTime.now();
               // 提示
@@ -98,7 +97,7 @@ class _BottomTabBarState extends State<BottomTabBar> {
           onTap: (int index) {
             setState(() {
               _currentIndex = index;
-              _pageController.jumpToPage(_currentIndex);
+              _pageController?.jumpToPage(_currentIndex);
             });
           },
           items: _items,

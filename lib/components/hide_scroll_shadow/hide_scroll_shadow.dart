@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 class HideScrollShadow extends StatelessWidget {
   final Widget child;
 
-  HideScrollShadow({this.child});
+  HideScrollShadow({required this.child});
 
   @override
   Widget build(BuildContext context) {

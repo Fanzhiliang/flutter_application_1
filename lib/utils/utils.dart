@@ -184,12 +184,12 @@ class Utils {
 
   /// 校验邮箱
   ///
-  static bool isEmail(String email) {
+  static bool isEmail(String? email) {
     if (email == null) return false;
     Pattern pattern =
         r'^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$';
     RegExp regex = RegExp(
-      pattern,
+      pattern as String,
       caseSensitive: false,
       multiLine: false,
     );
@@ -217,8 +217,8 @@ class Utils {
 
   /// 时间转字符串
   ///
-  static String duration2String(Duration duration) {
-    return duration?.toString()?.split('.')?.first ?? '0:00:00';
+  static String duration2String(Duration? duration) {
+    return duration?.toString().split('.').first ?? '0:00:00';
   }
 
   /// 16进制颜色值转换为10进制值
@@ -272,7 +272,7 @@ class Utils {
 
   /// 是否是空字符串
   ///
-  static bool isEmptyString(String str) {
+  static bool isEmptyString(String? str) {
     if (str == null || str.isEmpty) {
       return true;
     }
@@ -281,7 +281,7 @@ class Utils {
 
   /// 是否不是空字符串
   ///
-  static bool isNotEmptyString(String str) {
+  static bool isNotEmptyString(String? str) {
     if (str != null && str.isNotEmpty) {
       return true;
     }
@@ -290,7 +290,7 @@ class Utils {
 
   /// 🔥格式化手机号为344
   ///
-  static String formatMobile344(String mobile) {
+  static String formatMobile344(String? mobile) {
     if (isEmptyString(mobile)) return '';
     mobile = mobile?.replaceAllMapped(new RegExp(r"(^\d{3}|\d{4}\B)"),
         (Match match) {
@@ -299,7 +299,7 @@ class Utils {
     if (mobile != null && mobile.endsWith(' ')) {
       mobile = mobile.substring(0, mobile.length - 1);
     }
-    return mobile;
+    return mobile ?? '';
   }
 
   static Future<void> readFont(String fontName, String path) async {
@@ -396,9 +396,9 @@ class Utils {
 }
 
 // 防抖计时器
-Timer debounceTimer;
+Timer? debounceTimer;
 // 防抖
-Function debounce(Function func, [int t = 350, bool initiate = true]) {
+Function debounce(Function? func, [int t = 350, bool initiate = true]) {
   return () {
     if (initiate) {
       // 需要初始触发，一定时间内不能再触发
@@ -410,13 +410,13 @@ Function debounce(Function func, [int t = 350, bool initiate = true]) {
         }
 
         debounceTimer = Timer(Duration(milliseconds: t), () {
-          debounceTimer.cancel();
+          debounceTimer?.cancel();
         });
       }
     } else {
       // 一定时间后再触发
       if (debounceTimer?.isActive ?? false) {
-        debounceTimer.cancel();
+        debounceTimer?.cancel();
       }
 
       debounceTimer = Timer(Duration(milliseconds: t), () {
