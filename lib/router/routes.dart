@@ -91,7 +91,7 @@ class RouterUtils {
     if (navigatorState.canPop()) {
       unfocus();
       for (int i = 0; i < times; i++) {
-        navigatorState.pop(context);
+        navigatorState.pop();
       }
     }
   }
