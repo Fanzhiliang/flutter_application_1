@@ -8,4 +8,6 @@ class Global {
   static late RouteMap routeMap;
   // 主要颜色
   static const Color Primary_Color = Colors.blue;
+  //
+  static List<String> routeList = [];
 }

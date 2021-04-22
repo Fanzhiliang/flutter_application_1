@@ -1,11 +1,13 @@
 import 'package:fluro/fluro.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/global.dart';
 // 页面
-import '../pages/tabbar/bottom_tabbar.dart';
+import '../pages/tabbar/bottom_tabbar.dart' as IndexTabBar;
 import '../pages/listPage/routes.dart';
+import '../pages/routePage/routes.dart';
 
-class RouteMap with ListPageRouteMap {
-  final String bottomTabBar = 'bottom_tabbar';
+class RouteMap with ListPageRouteMap, RoutePageRouteMap {
+  final String root = 'index_bottom_tabbar';
 }
 
 class Routes {
@@ -14,8 +16,10 @@ class Routes {
 
     ListPageRouteMap.define(router);
 
+    RoutePageRouteMap.define(router);
+
     router.define(
-      routeMap.bottomTabBar,
+      routeMap.root,
       handler: Handler(
         handlerFunc: (BuildContext? context, Map<String, List<String>> params) {
           int current = 0;
@@ -24,7 +28,7 @@ class Routes {
             current = int.parse(params['current']!.first);
           }
 
-          return BottomTabBar(
+          return IndexTabBar.BottomTabBar(
             current: current,
           );
         },
@@ -67,6 +71,10 @@ class RouterUtils {
         transitionBuilder,
   }) async {
     unfocus();
+    // 清空路由栈
+    if (clearStack) {
+      Global.routeList = [];
+    }
     return await router.navigateTo(
       context,
       path,
@@ -78,10 +86,13 @@ class RouterUtils {
     );
   }
 
-  void back(BuildContext context) {
-    if (Navigator.of(context).canPop()) {
+  void back(BuildContext context, [int times = 1]) {
+    NavigatorState navigatorState = Navigator.of(context);
+    if (navigatorState.canPop()) {
       unfocus();
-      Navigator.pop(context);
+      for (int i = 0; i < times; i++) {
+        navigatorState.pop(context);
+      }
     }
   }
 

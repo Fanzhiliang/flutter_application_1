@@ -8,10 +8,10 @@ class ListPageRouteMap {
   final String reorderAbleListPage = 'reorder_able_list_page';
   final String likeListPage = 'like_list_page';
 
-  static void Function(FluroRouter) define = listPageconfigureRoutes;
+  static void Function(FluroRouter) define = handleDefine;
 }
 
-void listPageconfigureRoutes(FluroRouter router) {
+void handleDefine(FluroRouter router) {
   ListPageRouteMap routeMap = ListPageRouteMap();
 
   router.define(

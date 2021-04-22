@@ -20,9 +20,11 @@ class _ReorderAbleListPageState extends State<ReorderAbleListPage> {
   // 添加随机单词
   _handleRandomWord() async {
     await Future.delayed(Duration(milliseconds: 1500));
-    setState(() {
-      _words.addAll(generateWordPairs().take(20));
-    });
+    if (mounted) {
+      setState(() {
+        _words.addAll(generateWordPairs().take(20));
+      });
+    }
   }
 
   // 切换选中

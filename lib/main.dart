@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_application_1/global.dart';
+import 'package:flutter_application_1/router/observer.dart';
 import 'package:flutter_application_1/router/routes.dart';
 import 'package:flutter_application_1/utils/utils.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
@@ -66,6 +67,9 @@ class _AppState extends State<App> {
         supportedLocales: [
           const Locale('zh', 'CN'),
           const Locale('en', 'US'),
+        ],
+        navigatorObservers: [
+          GlobalObserver(),
         ],
       ),
     );
