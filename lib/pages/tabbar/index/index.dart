@@ -31,6 +31,17 @@ class _IndexState extends State<Index> with AutomaticKeepAliveClientMixin {
           Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              ElevatedButton(
+                child: Text('路由测试'),
+                onPressed: () {
+                  Global.routerUtils
+                      .navigateTo(
+                        context,
+                        Global.routeMap.page1,
+                      )
+                      .then((value) => print(value));
+                },
+              ),
               TextButton(
                 child: Text('可拖拽列表'),
                 onPressed: () {
@@ -41,14 +52,12 @@ class _IndexState extends State<Index> with AutomaticKeepAliveClientMixin {
                 },
               ),
               ElevatedButton(
-                child: Text('路由测试'),
+                child: Text('普通列表'),
                 onPressed: () {
-                  Global.routerUtils
-                      .navigateTo(
-                        context,
-                        Global.routeMap.page1,
-                      )
-                      .then((value) => print(value));
+                  Global.routerUtils.navigateTo(
+                    context,
+                    Global.routeMap.customListPage,
+                  );
                 },
               ),
             ],
