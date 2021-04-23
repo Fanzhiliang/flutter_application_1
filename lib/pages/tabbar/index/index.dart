@@ -43,10 +43,12 @@ class _IndexState extends State<Index> with AutomaticKeepAliveClientMixin {
               ElevatedButton(
                 child: Text('路由测试'),
                 onPressed: () {
-                  Global.routerUtils.navigateTo(
-                    context,
-                    Global.routeMap.page1,
-                  );
+                  Global.routerUtils
+                      .navigateTo(
+                        context,
+                        Global.routeMap.page1,
+                      )
+                      .then((value) => print(value));
                 },
               ),
             ],

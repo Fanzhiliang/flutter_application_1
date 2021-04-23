@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -7,15 +9,52 @@ import 'package:flutter_application_1/global.dart';
 import 'package:flutter_application_1/utils/source_utils.dart';
 import 'package:flutter_application_1/utils/utils.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:badges/badges.dart';
+import 'package:event_bus/event_bus.dart';
 import './index/index.dart';
 import './user/user.dart';
 
+EventBus $tabBarBus = EventBus();
+
+// tabbar 改变事件
+class TabBarChangeEvent {
+  final int currentIndex;
+
+  const TabBarChangeEvent({
+    this.currentIndex = 0,
+  });
+}
+
+// tabbar 角标改变事件
+class BadgeChangeEvent {
+  int index;
+  BottomTabBarBadge badge;
+
+  BadgeChangeEvent({
+    required this.index,
+    required this.badge,
+  });
+}
+
+// tabbar 角标
+class BottomTabBarBadge {
+  bool showBadge;
+  String badgeContent;
+
+  BottomTabBarBadge({
+    this.showBadge = false,
+    this.badgeContent = '',
+  });
+}
+
+// tabbar 项
 class BottomTabBarItem {
   String? title;
   Widget page;
   Widget icon;
   Widget activeIcon;
   Function? onTap;
+  BottomTabBarBadge? badge;
 
   BottomTabBarItem({
     this.title,
@@ -23,9 +62,11 @@ class BottomTabBarItem {
     this.icon = const SizedBox(),
     this.activeIcon = const SizedBox(),
     this.onTap,
+    this.badge,
   });
 }
 
+// tabbar
 class BottomTabBar extends StatefulWidget {
   final int current;
 
@@ -42,6 +83,7 @@ class _BottomTabBarState extends State<BottomTabBar> {
   DateTime _lastPopTime = DateTime.now();
   final int _popMaxTime = 2;
 
+  // tabbar 列表
   List<BottomTabBarItem> _tabbarList = [
     BottomTabBarItem(
       title: '首页',
@@ -96,6 +138,30 @@ class _BottomTabBarState extends State<BottomTabBar> {
 
   PageController? _pageController;
 
+  // 生成角标
+  Widget _badgeBuilder({
+    BottomTabBarBadge? badge,
+    required Widget child,
+  }) {
+    badge = badge ?? BottomTabBarBadge();
+
+    return Badge(
+      badgeContent: Text(
+        badge.badgeContent,
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 10,
+        ),
+      ),
+      animationType: BadgeAnimationType.fade,
+      padding: EdgeInsets.all(5),
+      showBadge: badge.showBadge,
+      child: child,
+    );
+  }
+
+  List<StreamSubscription> _subs = [];
+
   @override
   void initState() {
     super.initState();
@@ -105,6 +171,29 @@ class _BottomTabBarState extends State<BottomTabBar> {
     _pageController = PageController(
       initialPage: _currentIndex,
     );
+
+    // 监听事件广播
+    _subs.add($tabBarBus.on<TabBarChangeEvent>().listen((e) {
+      setState(() {
+        _currentIndex = e.currentIndex;
+        _pageController!.jumpToPage(_currentIndex);
+      });
+    }));
+
+    _subs.add($tabBarBus.on<BadgeChangeEvent>().listen((e) {
+      setState(() {
+        _tabbarList[e.index].badge = e.badge;
+      });
+    }));
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    // 解绑事件广播
+    _subs.forEach((StreamSubscription sub) {
+      sub.cancel();
+    });
   }
 
   @override
@@ -158,8 +247,14 @@ class _BottomTabBarState extends State<BottomTabBar> {
             return BottomNavigationBarItem(
               title:
                   item.title != null ? Text(item.title as String) : SizedBox(),
-              icon: item.icon,
-              activeIcon: item.activeIcon,
+              icon: _badgeBuilder(
+                child: item.icon,
+                badge: item.badge,
+              ),
+              activeIcon: _badgeBuilder(
+                child: item.activeIcon,
+                badge: item.badge,
+              ),
             );
           }),
         ),

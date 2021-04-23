@@ -41,6 +41,10 @@ dependencies:
   fluttertoast: ^8.0.6
   # 拓展功能图片
   extended_image: ^4.0.1
+  # 事件广播
+  event_bus: ^2.0.0
+  # tabbar 角标
+  badges: ^2.0.0-nullsafety.1
 
 dev_dependencies:
   flutter_test:

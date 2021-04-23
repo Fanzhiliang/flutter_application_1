@@ -15,7 +15,7 @@ class GlobalObserver extends NavigatorObserver {
       List<String> arr = name.split('?');
       String routeName =
           arr.length > 0 && arr.first.isNotEmpty ? arr.first : '';
-      Global.routeList.add(routeName);
+      Global.routeList.add(routeName == '/' ? Global.routeMap.root : routeName);
     }
   }
 
@@ -29,9 +29,11 @@ class GlobalObserver extends NavigatorObserver {
 
   @override
   void didReplace({Route<dynamic>? newRoute, Route<dynamic>? oldRoute}) {
-    print('didReplace：');
-    print(newRoute);
-    print(oldRoute);
+    int lastIndex =
+        Global.routeList.lastIndexOf(oldRoute!.settings.name as String);
+    if (lastIndex >= 0) {
+      Global.routeList[lastIndex] = newRoute!.settings.name.toString();
+    }
   }
 
   @override

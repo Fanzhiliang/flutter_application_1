@@ -42,15 +42,6 @@ class _ToolbarContainerLayout extends SingleChildLayoutDelegate {
       toolbarHeight != oldDelegate.toolbarHeight;
 }
 
-class _PreferredAppBarSize extends Size {
-  _PreferredAppBarSize(this.toolbarHeight, this.bottomHeight)
-      : super.fromHeight(
-            (toolbarHeight ?? kToolbarHeight) + (bottomHeight ?? 0));
-
-  final double? toolbarHeight;
-  final double? bottomHeight;
-}
-
 /// A material design app bar.
 ///
 /// An app bar consists of a toolbar and potentially other widgets, such as a
@@ -113,7 +104,7 @@ class _PreferredAppBarSize extends Size {
 ///           icon: const Icon(Icons.navigate_next),
 ///           tooltip: 'Go to the next page',
 ///           onPressed: () {
-///             Navigator.push(context, MaterialPageRoute<void>(
+///             Navigator.push(context, MaterialPageRoute(
 ///               builder: (BuildContext context) {
 ///                 return Scaffold(
 ///                   appBar: AppBar(
@@ -200,23 +191,9 @@ class GradientAppBar extends StatefulWidget implements PreferredSizeWidget {
         assert(primary != null),
         assert(toolbarOpacity != null),
         assert(bottomOpacity != null),
-        preferredSize =
-            _PreferredAppBarSize(toolbarHeight, bottom?.preferredSize.height),
+        preferredSize = Size.fromHeight(toolbarHeight ??
+            kToolbarHeight + (bottom?.preferredSize.height ?? 0.0)),
         super(key: key);
-
-  /// Used by [Scaffold] to compute its [AppBar]'s overall height. The returned value is
-  /// the same `preferredSize.height` unless [AppBar.toolbarHeight] was null and
-  /// `AppBarTheme.of(context).toolbarHeight` is non-null. In that case the
-  /// return value is the sum of the theme's toolbar height and the height of
-  /// the app bar's [AppBar.bottom] widget.
-  static double preferredHeightFor(BuildContext context, Size preferredSize) {
-    if (preferredSize is _PreferredAppBarSize &&
-        preferredSize.toolbarHeight == null) {
-      return (AppBarTheme.of(context).toolbarHeight ?? kToolbarHeight) +
-          (preferredSize.bottomHeight ?? 0);
-    }
-    return preferredSize.height;
-  }
 
   /// {@template flutter.material.appbar.leading}
   /// A widget to display before the toolbar's [title].
@@ -301,12 +278,11 @@ class GradientAppBar extends StatefulWidget implements PreferredSizeWidget {
   /// MaterialApp(
   ///   home: Scaffold(
   ///     appBar: AppBar(
-  ///       title: SizedBox(
-  ///         height: toolbarHeight,
-  ///         child: Image.asset(logoAsset),
-  ///       ),
-  ///       toolbarHeight: toolbarHeight,
-  ///     ),
+  ///        title: SizedBox(
+  ///        height: toolbarHeight,
+  ///        child: child: Image.asset(logoAsset),
+  ///      ),
+  ///      toolbarHeight: toolbarHeight,
   ///   ),
   /// )
   /// ```
@@ -332,10 +308,10 @@ class GradientAppBar extends StatefulWidget implements PreferredSizeWidget {
   ///     primary: true,
   ///     slivers: <Widget>[
   ///       SliverAppBar(
-  ///         title: const Text('Hello World'),
+  ///         title: Text('Hello World'),
   ///         actions: <Widget>[
   ///           IconButton(
-  ///             icon: const Icon(Icons.shopping_cart),
+  ///             icon: Icon(Icons.shopping_cart),
   ///             tooltip: 'Open shopping cart',
   ///             onPressed: () {
   ///               // handle the press
@@ -428,10 +404,6 @@ class GradientAppBar extends StatefulWidget implements PreferredSizeWidget {
   /// null, then [AppBar] uses the overall theme's [ColorScheme.primary] if the
   /// overall theme's brightness is [Brightness.light], and [ColorScheme.surface]
   /// if the overall theme's [brightness] is [Brightness.dark].
-  ///
-  /// If this color is a [MaterialStateColor] it will be resolved against
-  /// [MaterialState.scrolledUnder] when the content of the app's
-  /// primary scrollable overlaps the app bar.
   /// {@endtemplate}
   ///
   /// See also:
@@ -678,11 +650,9 @@ class GradientAppBar extends StatefulWidget implements PreferredSizeWidget {
   /// {@template flutter.material.appbar.systemOverlayStyle}
   /// Specifies the style to use for the system overlays that overlap the AppBar.
   ///
-  /// This property is only used if [backwardsCompatibility] is set to false.
-  ///
-  /// If this property is null, then [AppBarTheme.systemOverlayStyle] of
-  /// [ThemeData.appBarTheme] is used. If that is also null, an appropriate
-  /// [SystemUiOverlayStyle] is calculated based on the [backgroundColor].
+  /// If this property is null, then [SystemUiOverlayStyle.light] is used if the
+  /// overall theme is dark, [SystemUiOverlayStyle.dark] otherwise. Theme brightness
+  /// is defined by [ColorScheme.brightness] for [ThemeData.colorScheme].
   ///
   /// The AppBar's descendants are built within a
   /// `AnnotatedRegion<SystemUiOverlayStyle>` widget, which causes
@@ -723,60 +693,12 @@ class _AppBarState extends State<GradientAppBar> {
   static const double _defaultElevation = 4.0;
   static const Color _defaultShadowColor = Color(0xFF000000);
 
-  ScrollNotificationObserverState? _scrollNotificationObserver;
-  bool _scrolledUnder = false;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    if (_scrollNotificationObserver != null)
-      _scrollNotificationObserver!.removeListener(_handleScrollNotification);
-    _scrollNotificationObserver = ScrollNotificationObserver.of(context);
-    if (_scrollNotificationObserver != null)
-      _scrollNotificationObserver!.addListener(_handleScrollNotification);
-  }
-
-  @override
-  void dispose() {
-    if (_scrollNotificationObserver != null) {
-      _scrollNotificationObserver!.removeListener(_handleScrollNotification);
-      _scrollNotificationObserver = null;
-    }
-    super.dispose();
-  }
-
   void _handleDrawerButton() {
     Scaffold.of(context).openDrawer();
   }
 
   void _handleDrawerButtonEnd() {
     Scaffold.of(context).openEndDrawer();
-  }
-
-  void _handleScrollNotification(ScrollNotification notification) {
-    if (notification is ScrollUpdateNotification) {
-      final bool oldScrolledUnder = _scrolledUnder;
-      _scrolledUnder =
-          notification.depth == 0 && notification.metrics.extentBefore > 0;
-      if (_scrolledUnder != oldScrolledUnder) {
-        setState(() {
-          // React to a change in MaterialState.scrolledUnder
-        });
-      }
-    }
-  }
-
-  Color _resolveColor(Set<MaterialState> states, Color? widgetColor,
-      Color? themeColor, Color defaultColor) {
-    return MaterialStateProperty.resolveAs<Color?>(widgetColor, states) ??
-        MaterialStateProperty.resolveAs<Color?>(themeColor, states) ??
-        MaterialStateProperty.resolveAs<Color>(defaultColor, states);
-  }
-
-  SystemUiOverlayStyle _systemOverlayStyleForBrightness(Brightness brightness) {
-    return brightness == Brightness.dark
-        ? SystemUiOverlayStyle.light
-        : SystemUiOverlayStyle.dark;
   }
 
   @override
@@ -789,21 +711,13 @@ class _AppBarState extends State<GradientAppBar> {
     final ScaffoldState? scaffold = Scaffold.maybeOf(context);
     final ModalRoute<dynamic>? parentRoute = ModalRoute.of(context);
 
-    final FlexibleSpaceBarSettings? settings =
-        context.dependOnInheritedWidgetOfExactType<FlexibleSpaceBarSettings>();
-    final Set<MaterialState> states = <MaterialState>{
-      if (settings?.isScrolledUnder ?? _scrolledUnder)
-        MaterialState.scrolledUnder,
-    };
-
     final bool hasDrawer = scaffold?.hasDrawer ?? false;
     final bool hasEndDrawer = scaffold?.hasEndDrawer ?? false;
     final bool canPop = parentRoute?.canPop ?? false;
     final bool useCloseButton =
         parentRoute is PageRoute<dynamic> && parentRoute.fullscreenDialog;
 
-    final double toolbarHeight =
-        widget.toolbarHeight ?? appBarTheme.toolbarHeight ?? kToolbarHeight;
+    final double toolbarHeight = widget.toolbarHeight ?? kToolbarHeight;
     final bool backwardsCompatibility = widget.backwardsCompatibility ??
         appBarTheme.backwardsCompatibility ??
         true;
@@ -812,11 +726,9 @@ class _AppBarState extends State<GradientAppBar> {
         ? widget.backgroundColor ??
             appBarTheme.backgroundColor ??
             theme.primaryColor
-        : _resolveColor(
-            states,
-            widget.backgroundColor,
-            appBarTheme.backgroundColor,
-            colorScheme.brightness == Brightness.dark
+        : widget.backgroundColor ??
+            appBarTheme.backgroundColor ??
+            (colorScheme.brightness == Brightness.dark
                 ? colorScheme.surface
                 : colorScheme.primary);
 
@@ -1045,16 +957,17 @@ class _AppBarState extends State<GradientAppBar> {
       );
     }
 
+    final Brightness overlayStyleBrightness =
+        widget.brightness ?? appBarTheme.brightness ?? colorScheme.brightness;
     final SystemUiOverlayStyle overlayStyle = backwardsCompatibility
-        ? _systemOverlayStyleForBrightness(
-            widget.brightness ??
-                appBarTheme.brightness ??
-                theme.primaryColorBrightness,
-          )
+        ? (overlayStyleBrightness == Brightness.dark
+            ? SystemUiOverlayStyle.light
+            : SystemUiOverlayStyle.dark)
         : widget.systemOverlayStyle ??
             appBarTheme.systemOverlayStyle ??
-            _systemOverlayStyleForBrightness(
-                ThemeData.estimateBrightnessForColor(backgroundColor));
+            (colorScheme.brightness == Brightness.dark
+                ? SystemUiOverlayStyle.light
+                : SystemUiOverlayStyle.dark);
 
     return Semantics(
       container: true,
@@ -1212,7 +1125,7 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
   final ShapeBorder? shape;
   final double? toolbarHeight;
   final double? leadingWidth;
-  final bool? backwardsCompatibility;
+  final bool backwardsCompatibility;
   final TextStyle? toolbarTextStyle;
   final TextStyle? titleTextStyle;
   final SystemUiOverlayStyle? systemOverlayStyle;
@@ -1254,8 +1167,6 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
     final double visibleToolbarHeight =
         visibleMainHeight - _bottomHeight - extraToolbarHeight;
 
-    final bool isScrolledUnder =
-        overlapsContent || (pinned && shrinkOffset > maxExtent - minExtent);
     final bool isPinnedWithOpacityFade =
         pinned && floating && bottom != null && extraToolbarHeight == 0.0;
     final double toolbarOpacity = !pinned || isPinnedWithOpacityFade
@@ -1268,7 +1179,6 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
       maxExtent: maxExtent,
       currentExtent: math.max(minExtent, maxExtent - shrinkOffset),
       toolbarOpacity: toolbarOpacity,
-      isScrolledUnder: isScrolledUnder,
       child: GradientAppBar(
         leading: leading,
         automaticallyImplyLeading: automaticallyImplyLeading,
@@ -1279,7 +1189,11 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
                 ? Semantics(child: flexibleSpace, header: true)
                 : flexibleSpace,
         bottom: bottom,
-        elevation: forceElevated || isScrolledUnder ? elevation : 0.0,
+        elevation: forceElevated ||
+                overlapsContent ||
+                (pinned && shrinkOffset > maxExtent - minExtent)
+            ? elevation ?? 4.0
+            : 0.0,
         shadowColor: shadowColor,
         backgroundColor: backgroundColor,
         foregroundColor: foregroundColor,
@@ -1392,107 +1306,115 @@ class _SliverAppBarDelegate extends SliverPersistentHeaderDelegate {
 /// ```
 /// {@end-tool}
 ///
-/// {@tool dartpad --template=stateful_widget_material}
-/// This sample shows a [SliverAppBar] and it's behavior when using the
-/// [pinned], [snap] and [floating] parameters.
+/// {@tool dartpad --template=freeform}
+///
+/// This sample shows a [SliverAppBar] and it's behaviors when using the [pinned], [snap] and [floating] parameters.
+///
+/// ```dart imports
+/// import 'package:flutter/material.dart';
+/// ```
 ///
 /// ```dart
-/// bool _pinned = true;
-/// bool _snap = false;
-/// bool _floating = false;
+/// void main() => runApp(MyApp());
 ///
-/// // [SliverAppBar]s are typically used in [CustomScrollView.slivers], which in
-/// // turn can be placed in a [Scaffold.body].
-/// @override
-/// Widget build(BuildContext context) {
-///   return Scaffold(
-///     body: CustomScrollView(
-///       slivers: <Widget>[
-///         SliverAppBar(
-///           pinned: _pinned,
-///           snap: _snap,
-///           floating: _floating,
-///           expandedHeight: 160.0,
-///           flexibleSpace: const FlexibleSpaceBar(
-///             title: Text('SliverAppBar'),
-///             background: FlutterLogo(),
-///           ),
-///         ),
-///         const SliverToBoxAdapter(
-///           child: SizedBox(
-///             height: 20,
-///             child: Center(
-///               child: const Text('Scroll to see the SliverAppBar in effect.'),
-///             ),
-///           ),
-///         ),
-///         SliverList(
-///          delegate: SliverChildBuilderDelegate(
-///            (BuildContext context, int index) {
-///              return Container(
-///                color: index.isOdd ? Colors.white : Colors.black12,
-///                height: 100.0,
-///                child: Center(
-///                  child: Text('$index', textScaleFactor: 5),
-///                ),
-///              );
-///            },
-///            childCount: 20,
-///          ),
-///        ),
-///       ],
-///     ),
-///     bottomNavigationBar: BottomAppBar(
-///       child: ButtonBar(
-///         alignment: MainAxisAlignment.spaceEvenly,
-///         children: <Widget>[
-///           Row(
-///             children: <Widget>[
-///               const Text('pinned'),
-///               Switch(
-///                 onChanged: (bool val) {
-///                   setState(() {
-///                     _pinned = val;
-///                   });
-///                 },
-///                 value: _pinned,
-///               ),
-///             ],
-///           ),
-///           Row(
-///             children: <Widget>[
-///               const Text('snap'),
-///               Switch(
-///                 onChanged: (bool val) {
-///                   setState(() {
-///                     _snap = val;
-///                     // Snapping only applies when the app bar is floating.
-///                     _floating = _floating || _snap;
-///                   });
-///                 },
-///                 value: _snap,
-///               ),
-///             ],
-///           ),
-///           Row(
-///             children: <Widget>[
-///               const Text('floating'),
-///               Switch(
-///                 onChanged: (bool val) {
-///                   setState(() {
-///                     _floating = val;
-///                     _snap = _snap && _floating;
-///                   });
-///                 },
-///                 value: _floating,
-///               ),
-///             ],
-///           ),
-///         ],
-///       ),
-///     ),
-///   );
+/// class MyApp extends StatefulWidget {
+///   const MyApp({Key? key}) : super(key: key);
+///
+///   @override
+///   State<StatefulWidget> createState() => _MyAppState();
 /// }
+///
+/// class _MyAppState extends State<MyApp> {
+///   bool _pinned = true;
+///   bool _snap = false;
+///   bool _floating = false;
+///
+///   // SliverAppBar is declared in Scaffold.body, in slivers of a
+///   // CustomScrollView.
+///   @override
+///   Widget build(BuildContext context) {
+///     return MaterialApp(
+///       home: Scaffold(
+///         body: CustomScrollView(
+///           slivers: <Widget>[
+///             SliverAppBar(
+///               pinned: this._pinned,
+///               snap: this._snap,
+///               floating: this._floating,
+///               expandedHeight: 160.0,
+///               flexibleSpace: FlexibleSpaceBar(
+///                 title: const Text("SliverAppBar"),
+///                 background: FlutterLogo(),
+///               ),
+///             ),
+///             SliverToBoxAdapter(
+///               child: Center(
+///                 child: Container(
+///                   height: 2000,
+///                   child: const Text("Scroll to see SliverAppBar in effect ."),
+///                 ),
+///               ),
+///             ),
+///           ],
+///         ),
+///         bottomNavigationBar: BottomAppBar(
+///           child: ButtonBar(
+///             alignment: MainAxisAlignment.spaceEvenly,
+///             children: <Widget>[
+///               Row(
+///                 children: <Widget>[
+///                   const Text('pinned'),
+///                   Switch(
+///                     onChanged: (bool val) {
+///                       setState(() {
+///                         this._pinned = val;
+///                       });
+///                     },
+///                     value: this._pinned,
+///                   ),
+///                 ],
+///               ),
+///               Row(
+///                 children: <Widget>[
+///                   const Text('snap'),
+///                   Switch(
+///                     onChanged: (bool val) {
+///                       setState(() {
+///                         this._snap = val;
+///                         //Snapping only applies when the app bar is floating.
+///                         this._floating = this._floating || val;
+///                       });
+///                     },
+///                     value: this._snap,
+///                   ),
+///                 ],
+///               ),
+///               Row(
+///                 children: <Widget>[
+///                   const Text('floating'),
+///                   Switch(
+///                     onChanged: (bool val) {
+///                       setState(() {
+///                         this._floating = val;
+///                         if (this._snap == true) {
+///                           if (this._floating != true) {
+///                             this._snap = false;
+///                           }
+///                         }
+///                       });
+///                     },
+///                     value: this._floating,
+///                   ),
+///                 ],
+///               ),
+///             ],
+///           ),
+///         ),
+///       ),
+///     );
+///   }
+/// }
+///
 /// ```
 /// {@end-tool}
 ///
@@ -1570,7 +1492,7 @@ class GradientSliverAppBar extends StatefulWidget {
     this.shape,
     this.toolbarHeight = kToolbarHeight,
     this.leadingWidth,
-    this.backwardsCompatibility,
+    this.backwardsCompatibility = true,
     this.toolbarTextStyle,
     this.titleTextStyle,
     this.systemOverlayStyle,
@@ -1825,7 +1747,7 @@ class GradientSliverAppBar extends StatefulWidget {
   /// {@macro flutter.material.appbar.backwardsCompatibility}
   ///
   /// This property is used to configure an [AppBar].
-  final bool? backwardsCompatibility;
+  final bool backwardsCompatibility;
 
   /// {@macro flutter.material.appbar.toolbarTextStyle}
   ///
